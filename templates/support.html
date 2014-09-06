@@ -1,0 +1,18 @@
+{% extends "base/app.html" %}
+{% block pagetitle %}<img src="/static/img/lemmiwink.png" alt="Logo">{% endblock %}
+{% block rightbtn %}
+{% include "base/cart_head.html" %}
+{% endblock %}
+
+{% block content %}
+    <div id="homepage_content" data-role="content">
+      <div class='addItems'>
+        <p>Questions? Please email <a href='mailto:help@lemmiwink.com'>help@lemmiwink.com</a> or call us at 650.479.4940</p>
+      </div>
+    </div><!-- /content -->
+<script>
+$(document).ready(function(){
+  $('#cart_btn').hide();
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base/app.html" %}
+{% block pagetitle %}<img src="/static/img/lemmiwink.png" alt="Logo">{% endblock %}
+{% block rightbtn %}
+
+{% endblock %}
+
+{% block content %}
+<div class="page-subtitle">
+  Payment Information
+</div>
+<div class="container">
+{% if has_cc == True %}
+<p>Saved Account:<br> xxxx xxxx xxxx {{cc}}</p>
+{% endif %}
+
+<form action="" method="POST" id="payment-form">
+  <span class="payment-errors"></span>
+
+  <div class="form-row">
+      <span>Card Number</span>
+      <input type="text" size="20" data-stripe="number" data-mini="true" />
+  </div>
+
+  <div class="form-row">
+    <span>CVC</span>
+    <div class="ui-grid-a">
+      <div class="ui-block-a">
+        <input type="text" size="4" data-stripe="cvc" maxlength="4" data-mini="true"/>
+      </div>
+      <div class="ui-block-b">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <span>Expiration</span>
+    <div class="ui-grid-a">
+      <div class="ui-block-a" style='border-right:1px solid #999'>
+        <input type="text" size="2" data-stripe="exp-month" maxlength="2" data-mini="true" placeholder="MM"/>
+      </div>
+      <div class="ui-block-b">
+        <input type="text" size="4" data-stripe="exp-year" maxlength="4" data-mini="true" placeholder="YYYY"/>
+      </div>
+    </div>
+  </div>
+  <button class='ui-mini ui-btn' type="submit">Submit Payment Info</button>
+</form>
+
+
+  You will not be charged until your order has been placed.
+  <hr style="background: #bebebe; margin: 15px 0px;">
+</div>
+<script type="text/javascript">
+  // This identifies your website in the createToken call below
+  //Stripe.setPublishableKey('pk_test_VjH6kKYbiHjaqv0JO1AAGqED');
+  Stripe.setPublishableKey('pk_live_1t2r9YaDJ8OogFnGDkHtyrrt');
+
+  jQuery(function($) {
+    $('#payment-form').submit(function(event) {
+      var $form = $(this);
+
+      // Disable the submit button to prevent repeated clicks
+      $form.find('button').prop('disabled', true);
+
+      Stripe.card.createToken($form, stripeResponseHandler);
+
+      // Prevent the form from submitting with the default action
+      return false;
+    });
+  });
+  var stripeResponseHandler = function(status, response) {
+    console.log(response);
+  var $form = $('#payment-form');
+
+  if (response.error) {
+    // Show the errors on the form
+    $form.find('.payment-errors').text(response.error.message);
+    $form.find('button').prop('disabled', false);
+  } else {
+    // token contains id, last4, and card type
+    var token = response.id;
+    var cc = response.card.last4;
+
+    var data = {'stripeToken' :token, 'cc':cc};
+    $.ajax({
+      type: "POST",
+      dataType: "json",
+      contentType: "application/json; charset=utf-8",
+      url: "/pay/cc",
+      data: JSON.stringify(data),
+      success: function(response) {
+        console.log(JSON.stringify(response));
+        if (response.status == "ok") {
+            $.mobile.changePage('{{next_url}}');
+        } else {
+           alert('Error');
+        }
+      }
+    });
+  }
+};
+</script>
+{% endblock %}

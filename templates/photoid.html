@@ -1,0 +1,117 @@
+{% extends "base/app.html" %}
+{% block pagetitle %}<img src="/static/img/lemmiwink.png" alt="Logo">{% endblock %}
+{% block rightbtn %}
+
+{% endblock %}
+{% block content %}
+    <div id="homepage_content" data-role="content">
+      <div class="page-subtitle">
+        Upload a photo of your Registration ID.
+      </div>
+      <form enctype="multipart/form-data" id='photoID'>
+        <div id="container">
+          <div id="filelist"></div>
+          <a id='pickfiles' data-role="button" data-transition="fade" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" class="ui-btn ui-corner-right ui-controlgroup-last ui-btn-up-c">Take a Picture</a>
+        </div>
+        <img style="width:50%;margin-right:25%;margin-left:25%" id="smallImage" src="" />
+        <input type="button" class="button small info" value="Save" id='save_btn'>
+        <input type='hidden' id='imgkey'>
+      </form>
+    </div><!-- /content -->
+
+<script type="text/javascript" src="/static/js/plupload/gears_init.js"></script>
+<script type="text/javascript" src="/static/js/plupload/plupload.full.min.js"></script>
+<script>
+$(document).ready(function(){
+  $('#cart_btn').hide();
+  var upload;
+  $('input#save_btn').button().button('disable');
+
+  function resetUpload() {
+    $.ajax({
+      type: "GET",
+      dataType: "json",
+      contentType: "application/json; charset=utf-8",
+      url: '/imgserv/url',
+      success: function(response) {
+        console.log(response);
+        if (response.status == "ok") {
+          upload = response.upload_url;
+          uploader.settings.url = upload;
+        }
+      }
+    });
+  }
+
+  var uploader = new plupload.Uploader({
+    runtimes: 'gears,flash,html4',
+    browse_button: 'pickfiles',
+    container: 'container',
+    url: upload,
+    use_query_string: false,
+    multipart: true,
+    flash_swf_url: '/static/js/plupload/plupload.flash.swf',
+    resize: {quality:10}
+  });
+  resetUpload();
+  uploader.bind('FilesAdded', function(up, files) {
+    $.each(files, function(i, file) {
+      $('#filelist').html(
+        '<div id="' + file.id + '">' +
+        'Loading: ' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b>' +
+        '</div>'
+      );
+    });
+    // reset upload link
+    resetUpload();
+  });
+  uploader.bind('UploadProgress', function(up, file) {
+    $('#' + file.id + ' b').html(file.percent + '%');
+  });
+  uploader.bind('FileUploaded', function(up, file, response) {
+    console.log(response.response);
+    var r = jQuery.parseJSON( response.response );
+    $('#save_btn').button().button('enable');
+    $("#smallImage").attr("src", r.url);
+    // save rosponse url
+    $('input#imgkey').val(r.key);
+    //window.location = response.response;
+  });
+  uploader.bind('Error', function(up, err) {
+    alert("Upload error: " + err.message);
+  });
+  uploader.bind('QueueChanged', function(up) {
+    uploader.start();
+  });
+
+  uploader.init();
+
+  $('input#save_btn').click(function(event){
+    event.preventDefault();
+    // save image and go to next page
+    uu = $('input#imgkey').val();
+    if (uu=='undefined') {
+      alert('No image.');
+      return;
+    }
+    data = {'uu': uu };
+    console.log(data);
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        url: '/m/regid',
+        success: function(response) {
+          console.log(response);
+          if (response.status == "ok") {
+            $(location).attr('href', '/');
+          }
+        }
+    });
+  });
+});
+
+</script>
+
+{% endblock %}

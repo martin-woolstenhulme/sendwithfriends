@@ -1,0 +1,20 @@
+{% extends "base/login.html" %}
+{% block content %}
+  	<div id='login'>
+      <p>
+      <img src='/static/img/lemmiwink_lg.png' style='margin-top:20%; width:60%'>
+      </p>
+      <br>
+      <form enctype="multipart/form-data" method="post" id="login_form" class="form-horizontal">
+        <input type="email" class='input-round' name="email" placeholder="Email Address">
+        <input type="password" class='input-round' name="password" placeholder="Password">
+        <button id='signup_btn' class='button-round'>Log In</button>
+        <div class='subtitle'><a href='/account/signup'>Register New Account</a></div>
+      </form>
+    <div id='login-footer'>
+    <a href='/account/pw'>Forgot Password</a>
+
+  </div><!-- /content -->
+  </div>
+{% endblock %}
+{% block url %}<script>var url = "/account/signin";</script> {% endblock %}
