@@ -6,7 +6,7 @@ import MySQLdb as mdb
 import twilio.twiml
 from werkzeug.contrib.cache import SimpleCache
 from twilio.rest import TwilioRestClient
-
+from db_schema.db-functions import *
 
 cache = SimpleCache()
 CACHE_TIMEOUT = 3600
@@ -61,25 +61,31 @@ def hello():
     return render_template('signup.html')
 
 
+@app.route("/web", methods=['GET'])
+def web():
+    """Home page"""
+    return render_template('web.html')
+
+
 @app.route("/signup", methods=['GET'])
 def signup():
     """Signup page"""
     return render_template('signup.html')
 
-
+@app.route("/signin", methods=['GET'])
+def signin():
+    """Signup page"""
+    return render_template('signin.html')
 
 @app.route("/signup", methods=['POST'])
 # /signup?fullname=bob
 def signup_post():
     """Handle signup submission"""
     fullname = request.args.get('fullname')
-    write_to_db(fullname)
-    #
+    addUserAccount(first_name, last_name, email, phone_number)
     return render_template('signup.html')
 
 
-def write_to_db(fullname):
-    pass
 
 
 @app.route("/profile")
@@ -139,6 +145,11 @@ def sms():
     """Show send money page"""
     # send_message('+14157125465', 'snapcash')
     return render_template('send_money.html')
+
+
+@app.route("/hive", methods=['GET'])
+def hive():
+    return render_template('hive2.html')
 
 
 @app.route("/receive_sms", methods=['GET', 'POST'])

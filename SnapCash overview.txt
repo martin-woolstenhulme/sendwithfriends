@@ -1,0 +1,28 @@
+http://10.11.9.144:8080/
+
+104.131.135.52
+
+Presentation Outline
+
+Intro:
+SnapCash Exchange will transfer money over a network of friends to avoid bank waiting periods or federal reporting rules. 
+
+For example you would have to pay income taxes on deposits over $14k and there would be a waiting period on amounts over $2500.
+
+SnapCash will split the originator's amount amongst your friends to transfer into the end users account. 
+
+for example: $10k from user A to User B, 
+	SnapCash will select the friends to receive the money from User A, 
+	then those friends will send the funds to User B
+
+The funds are transferred using MasterCard and/or Paypal for conformation.
+
+SnapCash will send an SMS message using the Twilio API to alert each user.
+
+Hosted on DigitalOcean using Python Flask and MySql. 
+
+
+
+
+mastercard, paypal, twilio and DigtalOcean
+

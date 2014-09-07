@@ -1,0 +1,11 @@
+[
+{"name":"A","size":3938,"imports":["B", "C", "D", "E", "F", "G"]},
+{"name":"E","size":3938,"imports":["Z", "C"]},
+{"name":"F","size":3938,"imports":["Z", "C"]},
+{"name":"G","size":3938,"imports":["Z", "C"]},
+{"name":"H","size":3938,"imports":["Z", "C"]},
+{"name":"B","size":3938,"imports":["Z"]},
+{"name":"C","size":3938,"imports":["Z"]},
+{"name":"D","szie":3938, "imports":[]},
+{"name":"Z","szie":3938, "imports":[]}
+]
