@@ -137,8 +137,26 @@ def create_account_json():
 @app.route("/sms", methods=['GET'])
 def sms():
     """Show send money page"""
-    send_message('+14157125465', 'snapcash')
+    # send_message('+14157125465', 'snapcash')
     return render_template('send_money.html')
+
+
+@app.route("/receive_sms", methods=['GET', 'POST'])
+def receive_sms():
+    """Respond to incoming calls with a simple text message.
+        When an sms is received, this indicates that the intermediary
+        is ready to forward the payment.
+    """
+    import logging
+    from_number = request.values.get('From', None)
+    body = request.values.get('Body', None)
+    # body = request.args.get('Body')
+    logging.info(body)
+    # app.logger.debug(body)
+    # print body
+    resp = twilio.twiml.Response()
+    resp.message("Hello, Mobile Monkey %s" % body)
+    return str(resp)
 
 
 def send_message(to, body="Hello there!"):
@@ -154,16 +172,6 @@ def example_json():
     return jsonify(d)
 
 
-@app.route("/sms", methods=['GET', 'POST'])
-def receive_sms():
-    """Respond to incoming calls with a simple text message.
-        When an sms is received, this indicates that the intermediary
-        is ready to forward the payment.
-    """
-
-    resp = twilio.twiml.Response()
-    resp.message("Hello, Mobile Monkey")
-    return str(resp)
 
 
 if __name__ == "__main__":
