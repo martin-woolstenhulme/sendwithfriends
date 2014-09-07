@@ -3,7 +3,6 @@
 {% block rightbtn %}
 {% endblock %}
 {% block content %}
-<link rel="stylesheet" href="/static/css/jquery-ui.css" />
   <div data-role="fieldcontain">
     <input type="email" name="email" data-inline="true" placeholder="Enter an Email">
     <a data-role="button" data-mini="true" data-inline="true" id='add_btn'>Add</a>
@@ -43,7 +42,7 @@ $(document).ready(function(){
         $.ajax({
             type: "POST",
             dataType: "json",
-            contentType: "json",
+            contentType: "application/json;",
             data: JSON.stringify(data),
             url: '/add_contact',
             success: function(response) {

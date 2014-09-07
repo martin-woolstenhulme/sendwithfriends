@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import make_response
 from flask import render_template, request, url_for, redirect, session, flash
 from flask import jsonify
 from  Utils.data.defs import twilio_auth, twilio_sid
@@ -8,7 +9,7 @@ from werkzeug.contrib.cache import SimpleCache
 from twilio.rest import TwilioRestClient
 import re
 from db_schema.db_functions import *
-from Handlers.Account import signup_account, read_cookie, update_account
+from Handlers.Account import signup_account, read_cookie, update_account, update_contacts
 
 
 cache = SimpleCache()
@@ -135,15 +136,25 @@ def send_money_post():
     amount = data.get('amount')
     friend = data.get('friend')
 
-    sender_number = userid # FILL ME
-    recipient = int(friend) # FILL ME
-    full_amt = int(amount) # FILL ME
+    sender_number = userid
+    recipient = int(friend)
+    full_amt = int(amount)
+    token = getPaymentTokenForUser(sender_number, 'braintree')
+    # charge sender
     trans_id = startTransaction(full_amt, sender_number, recipient)
     numbers = getPhoneNumbersForTransaction(trans_id)
-    for number, amt in numbers:
+    for user, number, amt in numbers:
+        # disburse payment to each receiver (assume braintree for now)
+        recv_token = getPaymentTokenForUser(user, 'braintree')
         msg = create_message(trans_id, number, amt)
-        send_message(number, msg)
-    return render_template('confirmation.html')
+        # send_message(number, msg)
+    mm={'error':None, 'status':'ok'}
+    mm['next_url'] = '/confirmation'
+    if mm['error'] is not None:
+        mm['status'] = 'error'
+    resp = make_response(jsonify(mm))
+    resp.headers['Content-Type'] = "application/json"
+    return resp
 
 
 @app.route("/confirmation", methods=['GET'])
@@ -199,6 +210,7 @@ def receive_sms():
 
 def create_message(trans_id, sender, amt):
     msg = 'SCID: %s, %s wants to send %s through you. Reply back w/ transaction id to allow.' % (trans_id, sender, amt)
+    return msg
 
 
 def send_message(to, body="Hello there!"):

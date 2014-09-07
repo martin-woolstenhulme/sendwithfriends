@@ -10,4 +10,6 @@ def setup():
     sudo('apt-get install python-mysqldb -y')
     sudo('pip install httplib2')
     sudo('pip install jinja2')
+    sudo('pip install paypalrestsdk')
     sudo('pip install flask')
+    sudo('pip install braintree')

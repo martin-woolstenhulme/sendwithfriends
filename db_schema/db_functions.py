@@ -25,11 +25,16 @@ def addFriendByEmail(user_id, friend_email):
     #    cur.execute('SELECT id FROM UserAccount WHERE email="%s"', "abcom")
     cur.execute('SELECT id FROM UserAccount WHERE email = "%s"' % friend_email)
     friend_id = cur.fetchone()[0]
+    
+    cur.execute("SELECT id FROM Friend WHERE user_id = %s AND friend_id = %s",
+                (user_id, friend_id))
+    friended = len(cur.fetchall())
 
-    cur.execute("INSERT INTO Friend VALUES (default, %s, %s)",
-                (str(user_id), str(friend_id)))
-    cur.execute("INSERT INTO Friend VALUES (default, %s, %s)",
-                            (str(friend_id), str(user_id)))
+    if friended == 0:
+        cur.execute("INSERT INTO Friend VALUES (default, %s, %s)",
+                    (str(user_id), str(friend_id)))
+        cur.execute("INSERT INTO Friend VALUES (default, %s, %s)",
+                    (str(friend_id), str(user_id)))
 
     db.commit()
     close_db(db)
@@ -49,7 +54,7 @@ def addFriendByPhone(user_id, friend_phone):
     cur.execute("INSERT INTO Friend VALUES (default, %s, %s)",
                 (str(user_id), str(friend_id)))
     cur.execute("INSERT INTO Friend VALUES (default, %s, %s)",
-                            (str(friend_id), str(user_id)))
+                (str(friend_id), str(user_id)))
 
 
     db.commit()
@@ -145,16 +150,17 @@ def getPaymentTokenForUser(user_id, provider):
     
     cur = db.cursor()
     cur.execute("SELECT token FROM PaymentInfo \
-                LEFT JOIN UserPaymentInfo ON UserAccount_id = 
-                WHERE id = %s",
-                (str(user_id)))
+                LEFT JOIN UserPaymentInfo ON PaymentInfo.id = UserPaymentInfo.PaymentInfo_id \
+                WHERE UserAccount_id = %s \
+                AND provider = %s",
+                (str(user_id), provider))
+   
+    token = cur.fetchone()[0]
+
+    db.commit()
+    close_db(db)
                 
-                user = cur.fetchone()
-                
-                db.commit()
-                close_db(db)
-                
-    return user
+    return token
 
 
 
@@ -206,7 +212,7 @@ def getPhoneNumbersForTransaction(transaction_id):
     db = connect_db()
     cur = db.cursor()
 
-    cur.execute("SELECT phone_number, TransactionAgent.amount FROM TransactionAgent \
+    cur.execute("SELECT UserAccount.id, phone_number, TransactionAgent.amount FROM TransactionAgent \
                 LEFT JOIN UserPaymentInfo ON agent_UserPaymentInfo_id = UserPaymentInfo.id \
                 LEFT JOIN UserAccount ON UserPaymentInfo.UserAccount_id = UserAccount.id \
                 WHERE TransactionAgent.transaction_id = %s",
@@ -218,7 +224,6 @@ def getPhoneNumbersForTransaction(transaction_id):
     close_db(db)
 
     return phoneNumbers
-
 
 #
 # Get all the friends for the specified user_id
@@ -254,6 +259,8 @@ def getFriends(user_id):
 #startTransaction(100000, 3, 4)
 
 #friends = getFriends(2)
+
+#print getPaymentTokenForUser(1, "Wells Fargo")
 
 #for friend in friends:
 #    print friend
