@@ -9,9 +9,9 @@
         Profile
       </div>
       <form enctype="multipart/form-data" method="post" id="payment-form">
-        <input type="text" class='input-address' name="name" placeholder="Full name (must match ID)" data-mini="true">
+        <input type="text" id='name' class='input-address' name="name" placeholder="Full name (must match ID)" data-mini="true">
         <hr class='input-hr'>
-        <input type="tel" class='input-address' name="tel" placeholder="Phone" data-mini="true">
+        <input type="tel" id='tel' class='input-address' name="tel" placeholder="Phone" data-mini="true">
         <div class="page-subtitle">
           Payment Information
         </div>
@@ -53,8 +53,8 @@
 <script type="text/javascript" charset="utf-8" src="/static/js/validation.js"></script>
 <script type="text/javascript">
   // This identifies your website in the createToken call below
-  //Stripe.setPublishableKey('pk_test_VjH6kKYbiHjaqv0JO1AAGqED');
-  Stripe.setPublishableKey('pk_live_1t2r9YaDJ8OogFnGDkHtyrrt');
+  Stripe.setPublishableKey('pk_test_VjH6kKYbiHjaqv0JO1AAGqED');
+  //Stripe.setPublishableKey('pk_live_1t2r9YaDJ8OogFnGDkHtyrrt');
 
   jQuery(function($) {
     $('#payment-form').submit(function(event) {
@@ -83,6 +83,9 @@
     var cc = response.card.last4;
 
     var data = {'stripeToken' :token, 'cc':cc};
+    data.name = $('input#name').val();
+    data.tel = $('input#tel').val();
+    console.log(data);
     $.ajax({
       type: "POST",
       dataType: "json",
@@ -92,7 +95,7 @@
       success: function(response) {
         console.log(JSON.stringify(response));
         if (response.status == "ok") {
-            $.mobile.changePage('{{next_url}}');
+           $(location).attr('href',response.next_url);
         } else {
            alert('Error');
         }

@@ -100,6 +100,7 @@ jQuery(document).ready(function () {
   $('#login').height(hh);
 });
 </script>
+<script src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" charset="utf-8">
 function validate_fields() {
   var $form = $('#login_form');
@@ -126,9 +127,12 @@ function validate_fields() {
         url: url,
         data: JSON.stringify(data),
         success: function(response) {
+          console.log(response);
           if (response.status == "ok") {
+            $.cookie('userid', response.userid);
             $(location).attr('href',response.next_url);
           } else if (response.status =="new") {
+            $.cookie('userid', response.userid);
             $(location).attr('href',response.next_url);
           } else {
              alert(response.error);

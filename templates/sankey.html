@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html class="ocks-org do-not-copy">
 <meta charset="utf-8">
@@ -66,7 +65,7 @@
 </footer>
 
 <script src="http://d3js.org/d3.v2.min.js?2.9.1"></script>
-<script src="static/js/sankey.js"></script>
+<script src="sankey.js"></script>
 <script>
 
 var margin = {top: 1, right: 1, bottom: 6, left: 1},
@@ -90,7 +89,7 @@ var sankey = d3.sankey()
 
 var path = sankey.link();
 
-d3.json("static/energy2.json", function(energy) {
+d3.json("energy.json", function(energy) {
 
   sankey
       .nodes(energy.nodes)
@@ -145,5 +144,4 @@ d3.json("static/energy2.json", function(energy) {
 });
 
 </script>
-</body>
-<html>
+</html>

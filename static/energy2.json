@@ -1,0 +1,13 @@
+{"nodes":[
+{"name":"Elaine"},
+{"name":"Warren"},
+{"name":"Martin"},
+{"name":"Jason"},
+{"name":"Bob"}
+],
+"links":[
+{"source":0,"target":2,"value":124.729},
+{"source":0,"target":3,"value":124.729},
+{"source":3,"target":1,"value":124.729},
+{"source":2,"target":4,"value":10.0}
+]}

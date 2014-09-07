@@ -6,7 +6,10 @@ import MySQLdb as mdb
 import twilio.twiml
 from werkzeug.contrib.cache import SimpleCache
 from twilio.rest import TwilioRestClient
-from db_schema.db-functions import *
+import re
+from db_schema.db_functions import *
+from Handlers.Account import signup_account, read_cookie, update_account
+
 
 cache = SimpleCache()
 CACHE_TIMEOUT = 3600
@@ -81,19 +84,19 @@ def signin():
 # /signup?fullname=bob
 def signup_post():
     """Handle signup submission"""
-    fullname = request.args.get('fullname')
-    addUserAccount(first_name, last_name, email, phone_number)
-    return render_template('signup.html')
+    return signup_account()
 
 
-
-
-@app.route("/profile")
+@app.route("/profile", methods=['GET'])
 def profile():
     # request.args.get('user')
     """Show profile and prompt user to add payment method"""
     return render_template('profile.html')
 
+
+@app.route("/profile", methods=['POST'])
+def update_profile():
+    return update_account()
 
 @app.route("/add_payment", methods=['POST'])
 def add_payment():
@@ -110,24 +113,42 @@ def add_contact():
 @app.route("/add_contact", methods=['POST'])
 def add_contact_post():
     """Add contact to db"""
-    return render_template('add_contact.html')
+    return  update_contacts()
 
 
 @app.route("/send_money", methods=['GET'])
 def send_money():
     """Show send money page"""
-    return render_template('send_money.html')
+    userid = read_cookie()
+    friends = getFriends(userid)
+    return render_template('send_money.html', friends=friends)
 
 
 @app.route("/send_money", methods=['POST'])
 def send_money_post():
     """Handle send money submission from user"""
-    return render_template('send_money.html')
+    userid = read_cookie()
+    sender = getUser(userid)
+    data = request.json
+    print data
+    print 'x'
+    amount = data.get('amount')
+    friend = data.get('friend')
+
+    sender_number = userid # FILL ME
+    recipient = int(friend) # FILL ME
+    full_amt = int(amount) # FILL ME
+    trans_id = startTransaction(full_amt, sender_number, recipient)
+    numbers = getPhoneNumbersForTransaction(trans_id)
+    for number, amt in numbers:
+        msg = create_message(trans_id, number, amt)
+        send_message(number, msg)
+    return render_template('confirmation.html')
 
 
 @app.route("/confirmation", methods=['GET'])
 def confirmation():
-    """Confirm reception of send moeny request"""
+    """Confirm reception of send money request"""
     return render_template('confirmation.html')
 
 
@@ -149,7 +170,8 @@ def sms():
 
 @app.route("/hive", methods=['GET'])
 def hive():
-    return render_template('hive2.html')
+    print 'hive'
+    return render_template('hive.html')
 
 
 @app.route("/receive_sms", methods=['GET', 'POST'])
@@ -165,24 +187,31 @@ def receive_sms():
     logging.info(body)
     # app.logger.debug(body)
     # print body
+    matches = re.search('\d+', body)
+    reply_msg = 'Transaction Rejected.'
+    if matches:
+        reply_msg = "SCID: %s confirmed!" % matches.group(0)
+        # do braintree transaction corresponding to SCID and middle person
     resp = twilio.twiml.Response()
-    resp.message("Hello, Mobile Monkey %s" % body)
+    resp.message(reply_msg)
     return str(resp)
+
+
+def create_message(trans_id, sender, amt):
+    msg = 'SCID: %s, %s wants to send %s through you. Reply back w/ transaction id to allow.' % (trans_id, sender, amt)
 
 
 def send_message(to, body="Hello there!"):
     account_sid = twilio_sid
     auth_token = twilio_auth
     client = TwilioRestClient(account_sid, auth_token)
-    message = client.messages.create(to=to, from_="+16264145990", body=body)
+    message = client.messages.create(to='+1' + to, from_="+16264145990", body=body)
 
 
 @app.route('/example.json')
 def example_json():
     d = {}
     return jsonify(d)
-
-
 
 
 if __name__ == "__main__":

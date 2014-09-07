@@ -15,7 +15,7 @@ for example: $10k from user A to User B,
 	SnapCash will select the friends to receive the money from User A, 
 	then those friends will send the funds to User B
 
-The funds are transferred using MasterCard and/or Paypal for conformation.
+The funds are transferred using MasterCard and/or Paypal for confirmation.
 
 SnapCash will send an SMS message using the Twilio API to alert each user.
 
@@ -24,5 +24,5 @@ Hosted on DigitalOcean using Python Flask and MySql.
 
 
 
-mastercard, paypal, twilio and DigtalOcean
+mastercard, paypal, twilio and DigitalOcean
 

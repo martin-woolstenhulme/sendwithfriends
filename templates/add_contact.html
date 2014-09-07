@@ -1,7 +1,6 @@
 {% extends "base/app.html" %}
 {% block pagetitle %}<img src="/static/img/snapcash.png" alt="Logo">{% endblock %}
 {% block rightbtn %}
-{% include "base/cart_head.html" %}
 {% endblock %}
 {% block content %}
 <link rel="stylesheet" href="/static/css/jquery-ui.css" />
@@ -15,7 +14,6 @@
     <button class='ui-mini ui-btn' id='submit_btn'>Submit</button>
 </div>
 
-<input type='hidden' value='{{routekey}}' id='routekey'>
   <script>
 var urlParams;
 (window.onpopstate = function () {
@@ -50,7 +48,7 @@ $(document).ready(function(){
             url: '/add_contact',
             success: function(response) {
                 if (response.status == "ok") {
-                    window.location.replace(response.route_url);
+                  $(location).attr('href',response.next_url);
                 } else
                     alert(response.status);
             }

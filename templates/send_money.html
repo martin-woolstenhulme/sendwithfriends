@@ -1,7 +1,6 @@
 {% extends "base/app.html" %}
 {% block pagetitle %}<img src="/static/img/snapcash.png" alt="Logo">{% endblock %}
 {% block rightbtn %}
-{% include "base/cart_head.html" %}
 {% endblock %}
 {% block content %}
 
@@ -10,46 +9,40 @@
     Send money
   </div>
   <form enctype="multipart/form-data" method="post" id="sendmoney_form">
-  <select name="friend">
+  <select name="friend" id='friend'>
   {% for f in friends %}
-      <option value="{{loop.index}}">{{ f }}</option>
+      <option value="{{ f[0] }}">{{ f[1] }} {{ f[2] }}</option>
   {% endfor %}
-      <option value="1">Martin</option>
-      <option value="2">Warren</option>
-      <option value="3">Elaine</option>
   </select>
-    <input type="number" step="0.01" min=0 class='input-address' name="amount" placeholder="Amount" data-mini="true" value="">
+    <input type="number" step="0.01" min=0 class='input-address' name="amount" placeholder="Amount" data-mini="true" value="" id='amount'>
     <hr class='input-hr'>
-    
-    <button class='ui-mini ui-btn' id='sendmoney_btn' disabled>SEND</button>
+
+    <button class='ui-mini ui-btn' id='sendmoney_btn' >SEND</button>
   </form>
 
 </div><!-- /page -->
 
-<script type="text/javascript" charset="utf-8" src="/static/js/validation.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-/* send info to server */
-function validate_sendmoney() {
-  var $form = $('#sendmoney_form');
-  var friend = $form.find('input[name=friend]').val();
-  
-  var amount = $form.find('input[name=amount]').val();
-  if (friend!=='' && amount!=='')
-    return true;
-  else
-    return false;
-}
 $('#sendmoney_btn').click( function(e) {
   e.preventDefault();
-
-  var valid = validate_sendmoney();
-  if (!valid) {
-    alert('Incomplete');
-    return
-  }
-  // Try to get a geopt for this address
-  var data = $('#sendmoney_form').serializeObject();
+    amount = $('input#amount').val();
+    friend = $('select#friend').val();
+    data={'amount': amount, 'friend': friend};
+    console.log(data);
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json;",
+        data: JSON.stringify(data),
+        url: '/send_money',
+        success: function(response) {
+            if (response.status == "ok") {
+              $(location).attr('href',response.next_url);
+            } else
+                alert(response.status);
+        }
+    });
 });
 
 </script>

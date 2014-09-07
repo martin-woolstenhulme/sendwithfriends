@@ -1,8 +1,13 @@
-<html>
-<head>
-	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-	<style>
-	.axis {
+
+<!DOCTYPE html>
+<html class="ocks-org do-not-copy">
+<meta charset="utf-8">
+<title>Snapcash</title>
+<style>
+
+@import url(../style.css?aea6f0a);
+
+.axis {
   stroke: #000;
   stroke-width: 1.5px;
 }
@@ -28,18 +33,28 @@
   stroke: red;
   stroke-width: 3px;
 }
-	</style>
-</head>
-<body>
-<p id="info"></p>
-<p id="chart"></p>
+
+</style>
+
+<header>
+</header>
+
+<p id="info">
+
+<p id="chart">
+
+<footer>
+</footer>
+
+<script src="http://d3js.org/d3.v2.js?2.8.1"></script>
 <script>
+
 var width = 960,
     height = 850,
     innerRadius = 40,
     outerRadius = 640,
-    majorAngle = 1 * Math.PI / 3,
-    minorAngle = 0 * 1 * Math.PI / 12;
+    majorAngle = 2 * Math.PI / 3,
+    minorAngle = 1 * Math.PI / 12;
 
 var angle = d3.scale.ordinal()
     .domain(["source", "source-target", "target-source", "target"])
@@ -57,7 +72,7 @@ var svg = d3.select("#chart").append("svg")
     .attr("transform", "translate(" + outerRadius * .20 + "," + outerRadius * .57 + ")");
 
 // Load the data and display the plot!
-d3.json("/static/hive.json", function(nodes) {
+d3.json("/static/names.json", function(nodes) {
   var nodesByName = {},
       links = [],
       formatNumber = d3.format(",d"),
@@ -97,7 +112,7 @@ d3.json("/static/hive.json", function(nodes) {
 
   // Initialize the info display.
   var info = d3.select("#info")
-      .text(defaultInfo = "Showing " + formatNumber(links.length) + " dependencies among " + formatNumber(nodes.length) + " classes.");
+      .text(defaultInfo = "Select Person");
 
   // Normally, Hive Plots sort nodes by degree along each axis. However, since
   // this example visualizes a package hierarchy, we get more interesting
@@ -275,5 +290,11 @@ function degrees(radians) {
 }
 
 </script>
-</body>
-</html>
+<script>
+
+GoogleAnalyticsObject = "ga", ga = function() { ga.q.push(arguments); }, ga.q = [], ga.l = +new Date;
+ga("create", "UA-48272912-3", "ocks.org");
+ga("send", "pageview");
+
+</script>
+<script async src="//www.google-analytics.com/analytics.js"></script>
