@@ -1,133 +1,105 @@
 {% extends "base/app.html" %}
-{% block pagetitle %}<img src="/static/img/lemmiwink.png" alt="Logo">{% endblock %}
+{% block pagetitle %}<img src="/static/img/snapcash.png" alt="Logo">{% endblock %}
 {% block rightbtn %}
-{% include "base/cart_head.html" %}
+
 {% endblock %}
 {% block content %}
-
     <div id="homepage_content" data-role="content">
       <div class="page-subtitle">
-        Information
+        Profile
       </div>
-      <form enctype="multipart/form-data" method="post" id="addr_form">
-        <input type="text" class='input-address' name="name" placeholder="Full name (must match ID)" data-mini="true" value="{{name}}">
+      <form enctype="multipart/form-data" method="post" id="payment-form">
+        <input type="text" class='input-address' name="name" placeholder="Full name (must match ID)" data-mini="true">
         <hr class='input-hr'>
-        <input type="email" class='input-address' name="email" placeholder="Email" data-mini="true" value="{{email}}">
-        <hr class='input-hr'>
-        <input type="tel" class='input-address' name="tel" placeholder="Phone" data-mini="true" value="{{tel}}">
+        <input type="tel" class='input-address' name="tel" placeholder="Phone" data-mini="true">
         <div class="page-subtitle">
-          Delivery Address
+          Payment Information
         </div>
-        <input type="text" class='input-address' name="address" placeholder="Address" {% if addr %} value="{{addr.street}}" {% endif %}>
-        <hr class='input-hr'>
-        <input type="text" class='input-address' name="apt" placeholder="Apt / suite / unit" {% if addr %}value="{{addr.apt}}"{% endif %}>
-        <hr class='input-hr'>
-        <input type="text" class='input-address' id='city' name="city" placeholder="City" {% if addr %}value="{{addr.city}}"{% endif %}>
-        <hr class='input-hr'>
-        <div class="ui-grid-a">
-          <div class="ui-block-a">
-            <input type="text" class='input-address' id='state' name="state" placeholder="State" SIZE="2" MAXLENGTH="2" {% if addr %}value="{{addr.state}}"{% endif %}>
-          </div>
-          <div class="ui-block-b">
-            <input type="text" class='input-address' name="zip"  placeholder="Zip" SIZE="5" MAXLENGTH="5" id='zip' {% if addr %}value="{{addr.zip}}"{% endif %}>
-          </div>
-        </div>
-        <button class='ui-mini ui-btn' id='addr_btn' disabled>UPDATE</button>
-      </form>
+{% if has_cc == True %}
+<p>Saved Account:<br> xxxx xxxx xxxx {{cc}}</p>
+{% endif %}
+  <span class="payment-errors"></span>
 
-    </div><!-- /page -->
-<script type="text/javascript" charset="utf-8">
-function initialize() {
-  $('#addr_btn').button().button('enable');
-}
-$(document).ready(function() {
-  $("input#city").hide(); /* Show the fields */
-  $("input#state").hide();
-  $('input#zip').keypress(function(e) {
-      var a = [];
-      var k = e.which;
-      for (i = 48; i < 58; i++)
-          a.push(i);
-      if (!(a.indexOf(k)>=0))
-          e.preventDefault();
-  });
-  $('input#zip').keyup(function(e) {
-      // Do we have 5 digits?
-      var zip = $(this).val();
-      if (zip.length >=5)
-        fillCityState(zip);
-  });
-});
-function fillCityState(zip) {
-  $.ajax({
-    url: "http://zip.elevenbasetwo.com",
-    cache: false,
-    dataType: "json",
-    type: "GET",
-    data: "zip=" + zip,
-    success: function(result, success) {
-      console.log(result);
-      $("input#city").slideDown(); /* Show the fields */
-      $("input#state").slideDown(); /* Show the fields */
+  <div class="form-row">
+      <span>Card Number</span>
+      <input type="text" size="20" data-stripe="number" data-mini="true" />
+  </div>
 
-      $("input#city").val(result.city); /* Fill the data */
-      $("input#state").val(result.state);
-    },
-    error: function(result, success) {
-      console.log('bad zip');
-    }
-  });
-}
-</script>
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true&libraries=places&callback=initialize"></script>
+  <div class="form-row">
+    <span>CVC</span>
+    <div class="ui-grid-a">
+      <div class="ui-block-a">
+        <input type="text" size="4" data-stripe="cvc" maxlength="4" data-mini="true"/>
+      </div>
+      <div class="ui-block-b">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <span>Expiration</span>
+    <div class="ui-grid-a">
+      <div class="ui-block-a" style='border-right:1px solid #999'>
+        <input type="text" size="2" data-stripe="exp-month" maxlength="2" data-mini="true" placeholder="MM"/>
+      </div>
+      <div class="ui-block-b">
+        <input type="text" size="4" data-stripe="exp-year" maxlength="4" data-mini="true" placeholder="YYYY"/>
+      </div>
+    </div>
+  </div>
+  <button class='ui-mini ui-btn' type="submit">Submit Payment Info</button>               
+
+
 <script type="text/javascript" charset="utf-8" src="/static/js/validation.js"></script>
-<script type="text/javascript" charset="utf-8">
+<script type="text/javascript">
+  // This identifies your website in the createToken call below
+  //Stripe.setPublishableKey('pk_test_VjH6kKYbiHjaqv0JO1AAGqED');
+  Stripe.setPublishableKey('pk_live_1t2r9YaDJ8OogFnGDkHtyrrt');
 
-/* send address info to server */
-function validate_addr() {
-  var $form = $('#addr_form');
-  var name = $form.find('input[name=name]').val();
-  var address = $form.find('input[name=address]').val();
-  var city = $form.find('input[name=city]').val();
-  var state = $form.find('input[name=state]').val();
-  var zip = $form.find('input[name=zip]').val();
-  if (name!=='' && address!=='' && zip!=='')
-    return true;
-  else
-    return false;
-}
-$('#addr_btn').click( function(e) {
-  e.preventDefault();
+  jQuery(function($) {
+    $('#payment-form').submit(function(event) {
+      var $form = $(this);
 
-  var valid = validate_addr();
-  if (!valid) {
-    alert('Incomplete Address');
-    return
-  }
-  // Try to get a geopt for this address
-  var data = $('#addr_form').serializeObject();
-  geoFunc(data);
-});
+      // Disable the submit button to prevent repeated clicks
+      $form.find('button').prop('disabled', true);
 
-function geoFuncCallback(data) {
-  $.ajax({
-    type: "POST",
-    dataType: "json",
-    contentType: "application/json; charset=utf-8",
-    url: "/address/update",
-    data: JSON.stringify(data),
-    success: function(response) {
-      console.log(JSON.stringify(response));
-      if (response.status == "ok") {
-          // Go to picture of id
-          $(location).attr('href', '/');
-      } else {
-         alert(response.error);
-      }
-      $('#addr_btn').button().button('enable');
-    }
+      Stripe.card.createToken($form, stripeResponseHandler);
+
+      // Prevent the form from submitting with the default action
+      return false;
+    });
   });
-}
+  var stripeResponseHandler = function(status, response) {
+    console.log(response);
+  var $form = $('#payment-form');
+
+  if (response.error) {
+    // Show the errors on the form
+    $form.find('.payment-errors').text(response.error.message);
+    $form.find('button').prop('disabled', false);
+  } else {
+    // token contains id, last4, and card type
+    var token = response.id;
+    var cc = response.card.last4;
+
+    var data = {'stripeToken' :token, 'cc':cc};
+    $.ajax({
+      type: "POST",
+      dataType: "json",
+      contentType: "application/json; charset=utf-8",
+      url: "/profile",
+      data: JSON.stringify(data),
+      success: function(response) {
+        console.log(JSON.stringify(response));
+        if (response.status == "ok") {
+            $.mobile.changePage('{{next_url}}');
+        } else {
+           alert('Error');
+        }
+      }
+    });
+  }
+};
 </script>
 {% endblock %}
 

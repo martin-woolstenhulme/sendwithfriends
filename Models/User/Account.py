@@ -4,26 +4,6 @@ from Models.Money.Promo import PromoCode
 import logging
 import json
 
-# Models #
-##########
-
-class UserCredit(ndb.Model):
-    """ Parent of UserCredit is UserAccount
-        This is the credit for referring a new customer.
-        The credit does not become valid until the new customer places the order
-    """
-    referral = ndb.KeyProperty()    #users that they referred
-    valid = ndb.BooleanProperty(default=False)  # Has the referral placed an order?
-    redeemed = ndb.BooleanProperty(default=False)
-    amount = ndb.FloatProperty(default=10.00)
-
-""" Think about deleting this """
-class UserStats(ndb.Model):
-    credits = ndb.StructuredProperty(UserCredit, repeated=True)
-    #remnant from Barnacle, not using this right now
-    ip_addr = ndb.StringProperty(repeated=True)
-    locations = ndb.StringProperty(repeated=True)
-
 class UserAccounts(ndb.Model):
     valid = ndb.BooleanProperty(default=False)
     email = ndb.StringProperty()
@@ -34,8 +14,6 @@ class UserAccounts(ndb.Model):
     cust_id = ndb.StringProperty() # customer payment ID
     cc = ndb.StringProperty()
     fullname = ndb.StringProperty()
-    cardimg = ndb.BlobKeyProperty()  # Recommendation ID image
-    cardid = ndb.IntegerProperty() # Recommendation ID number
     last_active = ndb.DateTimeProperty(auto_now=True)
     created = ndb.DateTimeProperty(auto_now_add=True)
 

@@ -1,14 +1,19 @@
 from google.appengine.ext import ndb
 from Handlers.BaseHandler import *
-from Models.User.Account import *
-from Models.User.Cart import *
-from Models.Money.Transaction import *
-from Utils.data.defs import stripe_key, open_biz, close_biz
-from Utils.EmailUtils import send_alert
+from Utils.data.defs import *
+from Utils.XML2dict import *
 import datetime
 import logging
 import json
 import stripe
+import xml
+import urllib2
+
+"""
+    Payment process: Store card, get token. Store token in user account.
+        If it's a MC, use MC API. Otherwise, paypal.
+    Charge card when sending money
+"""
 
 class PaymentHandler(BaseHandler):
     """ Create addresses """
@@ -25,6 +30,19 @@ class PaymentHandler(BaseHandler):
             self.__createcc()
         elif action=='checkout':
             self.__charge()
+        elif action=='createmc':
+            self.__mc()
+            
+    def __mc(self):
+        req = urllib2.Request(url=mastercard_url, 
+                     data=card_xml, 
+                     headers={'Content-Type': 'application/xml'})
+        urllib2.urlopen(req)
+        # get mapping id
+        root = ElementTree.XML(req)
+        xmldict = XmlDictConfig(root)
+        mapping_id = xmldict.get('MappingId')
+        # store in user profile
 
     def __cc(self):
         if self.user_prefs.cc:
@@ -32,12 +50,6 @@ class PaymentHandler(BaseHandler):
             self.params['has_cc'] = True
         else:
             self.params['has_cc'] = False
-        #are they coming from shopping cart?
-        cart = self.request.get('cart')
-        if cart=='1':
-            self.params['next_url'] = '/pay/checkout'
-        else:
-            self.params['next_url'] = '/m/catalog'
         self.render('payment.html', **self.params)
 
     def __createcc(self):

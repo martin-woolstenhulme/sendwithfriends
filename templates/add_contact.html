@@ -1,0 +1,62 @@
+{% extends "base/app.html" %}
+{% block pagetitle %}<img src="/static/img/snapcash.png" alt="Logo">{% endblock %}
+{% block rightbtn %}
+{% include "base/cart_head.html" %}
+{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="/static/css/jquery-ui.css" />
+  <div data-role="fieldcontain">
+    <input type="email" name="email" data-inline="true" placeholder="Enter an Email">
+    <a data-role="button" data-mini="true" data-inline="true" id='add_btn'>Add</a>
+  </div>
+<div class="row">
+  <table id='sharelist'></table>
+</div>
+    <button class='ui-mini ui-btn' id='submit_btn'>Submit</button>
+</div>
+
+<input type='hidden' value='{{routekey}}' id='routekey'>
+  <script>
+var urlParams;
+(window.onpopstate = function () {
+    var match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+    urlParams = {};
+    while (match = search.exec(query))
+       urlParams[decode(match[1])] = decode(match[2]);
+})();
+
+$(document).ready(function(){
+  var emails = [];
+  $('#add_btn').click(function(event) {
+    email = $('input').val();
+    var row = '<tr><td>'+email+'</td></tr>';
+    $('table#sharelist').append(row);
+    emails.push(email);
+    email = $('input').val('');
+  });
+    $('#submit_btn').click(function(event) {
+        data={};
+        data.emails=emails;
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "json",
+            data: JSON.stringify(data),
+            url: '/add_contact',
+            success: function(response) {
+                if (response.status == "ok") {
+                    window.location.replace(response.route_url);
+                } else
+                    alert(response.status);
+            }
+        });
+    });
+});
+
+  </script>
+{% endblock %}

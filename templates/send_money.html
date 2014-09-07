@@ -1,0 +1,57 @@
+{% extends "base/app.html" %}
+{% block pagetitle %}<img src="/static/img/snapcash.png" alt="Logo">{% endblock %}
+{% block rightbtn %}
+{% include "base/cart_head.html" %}
+{% endblock %}
+{% block content %}
+
+<div id="homepage_content" data-role="content">
+  <div class="page-subtitle">
+    Send money
+  </div>
+  <form enctype="multipart/form-data" method="post" id="sendmoney_form">
+  <select name="friend">
+  {% for f in friends %}
+      <option value="{{loop.index}}">{{ f }}</option>
+  {% endfor %}
+      <option value="1">Martin</option>
+      <option value="2">Warren</option>
+      <option value="3">Elaine</option>
+  </select>
+    <input type="number" step="0.01" min=0 class='input-address' name="amount" placeholder="Amount" data-mini="true" value="">
+    <hr class='input-hr'>
+    
+    <button class='ui-mini ui-btn' id='sendmoney_btn' disabled>SEND</button>
+  </form>
+
+</div><!-- /page -->
+
+<script type="text/javascript" charset="utf-8" src="/static/js/validation.js"></script>
+<script type="text/javascript" charset="utf-8">
+
+/* send info to server */
+function validate_sendmoney() {
+  var $form = $('#sendmoney_form');
+  var friend = $form.find('input[name=friend]').val();
+  
+  var amount = $form.find('input[name=amount]').val();
+  if (friend!=='' && amount!=='')
+    return true;
+  else
+    return false;
+}
+$('#sendmoney_btn').click( function(e) {
+  e.preventDefault();
+
+  var valid = validate_sendmoney();
+  if (!valid) {
+    alert('Incomplete');
+    return
+  }
+  // Try to get a geopt for this address
+  var data = $('#sendmoney_form').serializeObject();
+});
+
+</script>
+{% endblock %}
+

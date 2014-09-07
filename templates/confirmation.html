@@ -1,0 +1,15 @@
+{% extends "base/app.html" %}
+{% block pagetitle %}<img src="/static/img/snapcash.png" alt="Logo">{% endblock %}
+{% block rightbtn %}
+{% include "base/cart_head.html" %}
+{% endblock %}
+{% block content %}
+<div id="homepage_content" data-role="content">
+  <div class="page-subtitle">
+    Your payment has been sent!
+  </div>   
+  <p><h2>You will receive a notification when the transaction is complete.</h2>
+  </p>
+</div>
+
+{% endblock %}
